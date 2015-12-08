@@ -18,6 +18,8 @@ def info = ""
 def free = ""
 def ramfree = ""
 def ver = ""
+def halt = 0
+def haltReason = ""
 
 tn=telnetlib.Telnet(host)
 tn.read_until(b"DMPS-300-C>")  ## IT'S READY TO GO HERE
@@ -62,3 +64,25 @@ def version():
 
 ### END FUNCTIONS ###
 
+## iptable gate logic
+iptable()
+
+## system info gate logic
+info()
+
+## Version gate logic
+version()
+
+## freespace gate logic
+free()
+
+## Move ahead
+if (halt <= 0):
+
+	##BACKUP STEPS
+
+
+	## Move new program
+	#stopprog()  # Stop the current DMPS program
+else:
+	print "Error encountered: %d",haltReason
