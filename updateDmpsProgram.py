@@ -20,6 +20,11 @@ def ramfree = ""
 def ver = ""
 def halt = 0
 def haltReason = ""
+def SIMPL = "\SIMPL\"
+def SPLUS = "\SPLUS"
+def BAK = "\USER"
+def true = "true"
+def false = "false"
 
 tn=telnetlib.Telnet(host)
 tn.read_until(b"DMPS-300-C>")  ## IT'S READY TO GO HERE
@@ -62,6 +67,18 @@ def version():
 	tn.read_until(b"TSW-750>")
 	return ver
 
+def cd(dir):
+	tn.write(b'cd '+ dir +' \r')
+	output = (tn.read_some())
+	tn.read_until(b"TSW-750>")
+	return output
+
+def copy(srcDir,dstDir,file):
+	tn.write(b'copyfile '+ srcDir +'\\'+ file +' '+ dstDir +'\\'+ file +' \r')
+	output = (tn.read_some())
+	tn.read_until(b"TSW-750>")
+	return output
+
 ### END FUNCTIONS ###
 
 ## iptable gate logic
@@ -80,6 +97,11 @@ free()
 if (halt <= 0):
 
 	##BACKUP STEPS
+	if (testDir(BAK) = true):
+		cd(BAK)
+		copy(SIMPL,BAK,"~.Manifest")
+
+	#if (testDir(SIMPL) = true):
 
 
 	## Move new program
