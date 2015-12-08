@@ -10,16 +10,27 @@ import socket
 host = '10.6.36.51'
 port = 41795
 size = 1024
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((host,port))
-s.send('iptable')
-data = s.recv(size)
-print 'Received: %d',data
-s.close()
+def output=""
+def splusExists=""
+def simplExists=""
+def iptable = ""
+def info = ""
+def free = ""
+def ramfree = ""
+def ver = ""
 
-#dmpsFile = "dmpsAddresses.txt"
-#fileToTrans = "dan.txt"
+tn=telnetlib.Telnet(host)
+tn.read_until(b"DMPS-300-C>")  ## IT'S READY TO GO HERE
 
-#with open(fname) as f:
-#    address = f.readline()
-    
+### FUNCTIONS ###
+
+def testDir(dirToTest):
+	tn.write(b'tn.isDir('+dirToTest+')')
+	output = (tn.read_some())
+	tn.read_until(b"TSW-750>")
+	return output
+
+
+
+### END FUNCTIONS ###
+
