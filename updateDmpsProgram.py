@@ -34,49 +34,54 @@ tn.read_until(b"DMPS-300-C>")  ## IT'S READY TO GO HERE
 def testDir(dirToTest):
 	tn.write(b'isDir('+dirToTest+') \r')
 	output = (tn.read_some())
-	tn.read_until(b"TSW-750>")
+	tn.read_until(b"DMPS-300-C>")
 	return output
 
 def iptable():
 	tn.write(b'iptable \r')
 	iptable = (tn.read_some())
-	tn.read_until(b"TSW-750>")
+	tn.read_until(b"DMPS-300-C>")
 	return iptable
 
 def info():
 	tn.write(b'info \r')
 	info = (tn.read_some())
-	tn.read_until(b"TSW-750>")
+	tn.read_until(b"DMPS-300-C>")
 	return info
 
 def free():
 	tn.write(b'free \r')
 	free = (tn.read_some())
-	tn.read_until(b"TSW-750>")
+	tn.read_until(b"DMPS-300-C>")
 	return free
 
 def ramfree():
 	tn.write(b'ramfree \r')
 	ramfree = (tn.read_some())
-	tn.read_until(b"TSW-750>")
+	tn.read_until(b"DMPS-300-C>")
 	return ramfree
 
 def version():
 	tn.write(b'ver \r')
 	ver = (tn.read_some())
-	tn.read_until(b"TSW-750>")
+	tn.read_until(b"DMPS-300-C>")
 	return ver
 
 def cd(dir):
 	tn.write(b'cd '+ dir +' \r')
 	output = (tn.read_some())
-	tn.read_until(b"TSW-750>")
+	output=tn.read_until(b"DMPS-300-C>")
 	return output
 
 def copy(srcDir,dstDir,file):
 	tn.write(b'copyfile '+ srcDir +'\\'+ file +' '+ dstDir +'\\'+ file +' \r')
 	output = (tn.read_some())
-	tn.read_until(b"TSW-750>")
+	tn.read_until(b"DMPS-300-C>")
+	return output
+
+def fn(func):
+	tn.write(b''+ func + ' \r')
+	output = tn.read_until(b"DMPS-300-C>")
 	return output
 
 print 'At end of functions declaration \r'
@@ -112,6 +117,13 @@ if (halt <= 0):
 
 
 	## Move new program
-	stopprog()  # Stop the current DMPS program
+	fn("stopprog")  # Stop the current DMPS program
+	print output
+	fn("progreset")
+	print output
+	fn("progcom")
+	print output
+	fn("ver")
+	print output
 else:
 	print "Error encountered: %d",haltReason
