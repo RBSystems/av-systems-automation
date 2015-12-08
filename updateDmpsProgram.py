@@ -25,12 +25,40 @@ tn.read_until(b"DMPS-300-C>")  ## IT'S READY TO GO HERE
 ### FUNCTIONS ###
 
 def testDir(dirToTest):
-	tn.write(b'tn.isDir('+dirToTest+')')
+	tn.write(b'isDir('+dirToTest+') \r')
 	output = (tn.read_some())
 	tn.read_until(b"TSW-750>")
 	return output
 
+def iptable():
+	tn.write(b'iptable \r')
+	iptable = (tn.read_some())
+	tn.read_until(b"TSW-750>")
+	return iptable
 
+def info():
+	tn.write(b'info \r')
+	info = (tn.read_some())
+	tn.read_until(b"TSW-750>")
+	return info
+
+def free():
+	tn.write(b'free \r')
+	free = (tn.read_some())
+	tn.read_until(b"TSW-750>")
+	return free
+
+def ramfree():
+	tn.write(b'ramfree \r')
+	ramfree = (tn.read_some())
+	tn.read_until(b"TSW-750>")
+	return ramfree
+
+def version():
+	tn.write(b'ver \r')
+	ver = (tn.read_some())
+	tn.read_until(b"TSW-750>")
+	return ver
 
 ### END FUNCTIONS ###
 
