@@ -10,21 +10,21 @@ import socket
 host = '10.6.36.51'
 port = 41795
 size = 1024
-def output = None
-def splusExists = None
-def simplExists = None
-def iptable = None
-def info = None
-def free = None
-def ramfree = None
-def ver = None
-def halt = None
-def haltReason = None
-def SIMPL = "\SIMPL\"
-def SPLUS = "\SPLUS"
-def BAK = "\USER"
-def true = "true"
-def false = "false"
+output = None
+splusExists = None
+simplExists = None
+iptable = None
+info = None
+free = None
+ramfree = None
+ver = None
+halt = None
+haltReason = None
+SIMPL = "\SIMPL"
+SPLUS = "\SPLUS"
+BAK = "\USER"
+true = "true"
+false = "false"
 
 tn=telnetlib.Telnet(host)
 tn.read_until(b"DMPS-300-C>")  ## IT'S READY TO GO HERE
