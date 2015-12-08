@@ -20,9 +20,9 @@ ramfree = None
 ver = None
 halt = None
 haltReason = None
-SIMPL = "\SIMPL"
-SPLUS = "\SPLUS"
-BAK = "\USER"
+SIMPL = "SIMPL"
+SPLUS = "SPLUS"
+BAK = "USER"
 true = "true"
 false = "false"
 
@@ -79,32 +79,39 @@ def copy(srcDir,dstDir,file):
 	tn.read_until(b"TSW-750>")
 	return output
 
+print 'At end of functions declaration \r'
 ### END FUNCTIONS ###
 
 ## iptable gate logic
-iptable()
+#iptable()
 
 ## system info gate logic
-info()
+#info()
 
 ## Version gate logic
-version()
+#version()
 
 ## freespace gate logic
-free()
+#free()
 
 ## Move ahead
 if (halt <= 0):
-
+	print 'moving ahead \r'
+	
 	##BACKUP STEPS
-	if (testDir(BAK) = true):
-		cd(BAK)
-		copy(SIMPL,BAK,"~.Manifest")
+	#if testDir(BAK) == true:
+	#	print 'cd to BAK \r'
+	#	cd(BAK)
+	#	print 'copying ~.Manifest \r'
+	#	copy(SIMPL,BAK,"~.Manifest")
+	#	print 'copy done \r'
+	#else:
+	#	print "\r"
 
-	#if (testDir(SIMPL) = true):
+	#if testDir(SIMPL) == true:
 
 
 	## Move new program
-	#stopprog()  # Stop the current DMPS program
+	stopprog()  # Stop the current DMPS program
 else:
 	print "Error encountered: %d",haltReason
