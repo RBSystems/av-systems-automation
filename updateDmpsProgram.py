@@ -26,76 +26,82 @@ SPLUS = "SPLUS"
 BAK = "USER"
 true = "true"
 false = "false"
+telnetClient = telnetlib.Telnet()
 
 ### FUNCTIONS ###
 def openTelnet():
-	tn=telnetlib.Telnet(host)
-	tn.read_until(b"DMPS-300-C>")  ## IT'S READY TO GO HERE
+	telnetClient=telnetlib.Telnet(host)
+	telnetClient.read_until(b"DMPS-300-C>")  ## IT'S READY TO GO HERE
+
+def closeTelnet():
+	telnetClient.close()
 
 def isTelnetLive():
-	s=tn.get_socket()
+	s=telnetClient.get_socket()
 	if s == 0:
 		return false
 	else:
 		return true
 
 def testDir(dirToTest):
-	tn.write(b'isDir('+dirToTest+') \r')
-	output = (tn.read_some())
-	tn.read_until(b"DMPS-300-C>")
+	telnetClient.write(b'isDir('+dirToTest+') \r')
+	output = (telnetClient.read_some())
+	telnetClient.read_until(b"DMPS-300-C>")
 	return output
 
 def iptable():
-	tn.write(b'iptable \r')
-	iptable = (tn.read_some())
-	tn.read_until(b"DMPS-300-C>")
+	telnetClient.write(b'iptable \r')
+	iptable = (telnetClient.read_some())
+	telnetClient.read_until(b"DMPS-300-C>")
 	return iptable
 
 def info():
-	tn.write(b'info \r')
-	info = (tn.read_some())
-	tn.read_until(b"DMPS-300-C>")
+	telnetClient.write(b'info \r')
+	info = (telnetClient.read_some())
+	telnetClient.read_until(b"DMPS-300-C>")
 	return info
 
 def free():
-	tn.write(b'free \r')
-	free = (tn.read_some())
-	tn.read_until(b"DMPS-300-C>")
+	telnetClient.write(b'free \r')
+	free = (telnetClient.read_some())
+	telnetClient.read_until(b"DMPS-300-C>")
 	return free
 
 def ramfree():
-	tn.write(b'ramfree \r')
-	ramfree = (tn.read_some())
-	tn.read_until(b"DMPS-300-C>")
+	telnetClient.write(b'ramfree \r')
+	ramfree = (telnetClient.read_some())
+	telnetClient.read_until(b"DMPS-300-C>")
 	return ramfree
 
 def version():
-	tn.write(b'ver \r')
-	ver = (tn.read_some())
-	tn.read_until(b"DMPS-300-C>")
+	telnetClient.write(b'ver \r')
+	ver = (telnetClient.read_some())
+	telnetClient.read_until(b"DMPS-300-C>")
 	return ver
 
 def cd(dir):
-	tn.write(b'cd '+ dir +' \r')
-	output = (tn.read_some())
-	output=tn.read_until(b"DMPS-300-C>")
+	telnetClient.write(b'cd '+ dir +' \r')
+	output = (telnetClient.read_some())
+	output=telnetClient.read_until(b"DMPS-300-C>")
 	return output
 
 def copy(srcDir,dstDir,file):
-	tn.write(b'copyfile '+ srcDir +'\\'+ file +' '+ dstDir +'\\'+ file +' \r')
-	output = (tn.read_some())
-	tn.read_until(b"DMPS-300-C>")
+	telnetClient.write(b'copyfile '+ srcDir +'\\'+ file +' '+ dstDir +'\\'+ file +' \r')
+	output = (telnetClient.read_some())
+	telnetClient.read_until(b"DMPS-300-C>")
 	return output
 
 def fn(func):
-	tn.write(b''+ func + ' \r')
-	output = tn.read_until(b"DMPS-300-C>")
+	telnetClient.write(b''+ func + ' \r')
+	output = telnetClient.read_until(b"DMPS-300-C>")
 	return output
 
 print 'At end of functions declaration \r'
 ### END FUNCTIONS ###
 
-#openTelnet()
+openTelnet()
+
+assert isTelnetLive() == true
 
 ## iptable gate logic
 #iptable()
@@ -142,3 +148,7 @@ if (halt <= 0):
 	#print output
 else:
 	print "Error encountered: %d",haltReason
+
+
+closeTelnet()
+assert isTelnetLive() == false
