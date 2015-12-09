@@ -19,7 +19,7 @@ info = None
 free = None
 ramfree = None
 ver = None
-halt = None
+halt = 0
 haltReason = None
 SIMPL = "SIMPL"
 SPLUS = "SPLUS"
@@ -88,7 +88,7 @@ def fn(func):
 print 'At end of functions declaration \r'
 ### END FUNCTIONS ###
 
-openTelnet()
+#openTelnet()
 
 ## iptable gate logic
 #iptable()
@@ -118,15 +118,18 @@ if (halt <= 0):
 
 	#if testDir(SIMPL) == true:
 
+	#Change Directory to build dir
+	projectDir=os.path.abspath(os.getcwd())
+	os.chdir(projectDir + "/build")
 
 	## Move new program
-	fn("stopprog")  # Stop the current DMPS program
-	print output
-	fn("progreset")
-	print output
-	fn("progcom")
-	print output
-	fn("ver")
-	print output
+	#fn("stopprog")  # Stop the current DMPS program
+	#print output
+	#fn("progreset")
+	#print output
+	#fn("progcom")
+	#print output
+	#fn("ver")
+	#print output
 else:
 	print "Error encountered: %d",haltReason
