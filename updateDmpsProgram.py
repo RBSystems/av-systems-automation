@@ -3,9 +3,10 @@
 from datetime import datetime
 from elasticsearch import Elasticsearch,RequestsHttpConnection
 import sys
-import telnetlib
 import ftplib
-import socket
+import os
+#import socket
+import telnetlib
 
 host = '10.6.36.51'
 port = 41795
