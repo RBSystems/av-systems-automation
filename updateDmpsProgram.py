@@ -26,10 +26,10 @@ BAK = "USER"
 true = "true"
 false = "false"
 
-tn=telnetlib.Telnet(host)
-tn.read_until(b"DMPS-300-C>")  ## IT'S READY TO GO HERE
-
 ### FUNCTIONS ###
+def openTelnet():
+	tn=telnetlib.Telnet(host)
+	tn.read_until(b"DMPS-300-C>")  ## IT'S READY TO GO HERE
 
 def testDir(dirToTest):
 	tn.write(b'isDir('+dirToTest+') \r')
@@ -86,6 +86,8 @@ def fn(func):
 
 print 'At end of functions declaration \r'
 ### END FUNCTIONS ###
+
+openTelnet()
 
 ## iptable gate logic
 #iptable()
