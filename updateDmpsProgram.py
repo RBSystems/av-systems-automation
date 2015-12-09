@@ -5,7 +5,7 @@ from elasticsearch import Elasticsearch,RequestsHttpConnection
 import sys
 import ftplib
 import os
-#import socket
+import socket
 import telnetlib
 
 host = '10.6.36.51'
@@ -31,6 +31,13 @@ false = "false"
 def openTelnet():
 	tn=telnetlib.Telnet(host)
 	tn.read_until(b"DMPS-300-C>")  ## IT'S READY TO GO HERE
+
+def isTelnetLive():
+	s=tn.get_socket()
+	if s == 0:
+		return false
+	else:
+		return true
 
 def testDir(dirToTest):
 	tn.write(b'isDir('+dirToTest+') \r')
@@ -121,6 +128,8 @@ if (halt <= 0):
 	#Change Directory to build dir
 	projectDir=os.path.abspath(os.getcwd())
 	os.chdir(projectDir + "/build")
+
+	cd 
 
 	## Move new program
 	#fn("stopprog")  # Stop the current DMPS program
