@@ -199,7 +199,7 @@ def push(file):
 	global telnetClient
 
 def cleanTime(t):
-	tmp = t[4:] # Remove first four charachters, i.e. "Mon "
+	tmp = t[-4:] # Remove first four charachters, i.e. "Mon "
 	tmp = t[:-8] # Remove last 5 characters, i.e. " 2015"
 	return tmp
 
@@ -261,9 +261,10 @@ if testDir(SIMPL) == true:
 	for f in simplfiles:
 		(mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat(f)
 		cDate = time.ctime(mtime)
-		parsed = cDate.replace("Mon ","")
+		cDate = cleanTime(cDate)
+		print cDate
 
-	print fn("xput" + fileSize + " " + fileDate + " " + fileName)
+	#print fn("xput" + fileSize + " " + fileDate + " " + fileName)
 	#xput .~Program_Boot_Data
 	#xput TEC HD v4.3.bin
 	#xput TEC HD v4.3.rte
