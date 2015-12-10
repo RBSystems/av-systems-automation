@@ -33,8 +33,19 @@ false = "false"
 parserResult = ""
 telnetClient = telnetlib.Telnet()
 
-### HANDLE ARGUMENTS ###
+### Halt Function ###
 
+def halt(reason):
+	sys.exit()
+
+### HANDLE ARGUMENTS ###
+if len(sys.argv) <> 3:
+	print ("Usage: python updateDmpsProgram.py updateFrom updateTo \r")
+	print ("Example: python updateDmpsProgram 4.3 4.4 \r")
+	sys.exit()
+else:
+	reqVer = sys.argv[1]
+	upgradeVer = sys.argv[2]
 
 ### END HANDLE ARGUMENTS ###
 
@@ -175,27 +186,26 @@ assert isTelnetLive() == true
 
 ## Version gate logic
 version()
-print ver
-
+if ver.replace("v","") <> reqVer:
+	halt("Cannot upgrade from this version")
 
 ## freespace gate logic
 #free()
 
 ## Move ahead
-#if (halt <= 0):
-#	print 'moving ahead \r'
+#print 'moving ahead \r'
 #	
-#	##BACKUP STEPS
-#	#if testDir(BAK) == true:
-#	#	print 'cd to BAK \r'
-#	#	cd(BAK)
-#	#	print 'copying ~.Manifest \r'
-#	#	copy(SIMPL,BAK,"~.Manifest")
-#	#	print 'copy done \r'
-#	#else:
-#	#	print "\r"
+##BACKUP STEPS
+#if testDir(BAK) == true:
+#	print 'cd to BAK \r'
+#	cd(BAK)
+#	print 'copying ~.Manifest \r'
+#	copy(SIMPL,BAK,"~.Manifest")
+#	print 'copy done \r'
+#else:
+#	print "\r"
 #
-#	#if testDir(SIMPL) == true:
+#if testDir(SIMPL) == true:
 #
 #	## Move new program
 #	#fn("stopprog")  # Stop the current DMPS program
@@ -205,10 +215,8 @@ print ver
 #	#fn("progcom")
 #	#print output
 #	print free()
-#
-#else:
-#	print "Error encountered: %d",haltReason
-#
-#
+
+
+## Close active session
 telnetClient=closeTelnet()
 assert isTelnetLive() == false
