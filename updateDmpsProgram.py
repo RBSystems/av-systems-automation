@@ -184,18 +184,18 @@ def rollUpdate(ip,path):
 	os.chdir("c:\automationWorkspace")
 	orig = "uploadNewProgram.txt"
 	tmp = ip + "_tmp.txt"
-    origIp = "10.6.36.51"
-    origPath = "C:\Users\dgclegg\Documents\repos\My TEC HD\TEC HD v4.3.spz"
-    input = open(orig)
-    output = open(tmp, 'w')
-    for s in input.xreadlines(  ):
-    	s = s.replace(origIp,ip)
-    	s = s.replace(origPath,path)
-        output.write(s)
-    output.close(  )
-    input.close(  )
-    subprocess.call(['cp',orig,'orig_bak'])
-    subprocess.call(['mv',tmp,orig])
+	origIp = "10.6.36.51"
+	origPath = "C:\Users\dgclegg\Documents\repos\My TEC HD\TEC HD v4.3.spz"
+	input = open(orig)
+	output = open(tmp, 'w')
+	for s in input.xreadlines(  ):
+		s = s.replace(origIp,ip)
+		s = s.replace(origPath,path)
+		output.write(s)
+	output.close(  )
+	input.close(  )
+	subprocess.call(['cp',orig,'orig_bak'])
+	subprocess.call(['mv',tmp,orig])
 	subprocess.call([crestronExec,workspace])
 	return "Update complete"
 
