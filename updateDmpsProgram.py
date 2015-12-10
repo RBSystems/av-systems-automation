@@ -124,7 +124,7 @@ def version():
 			retVal = word
 
 	telnetClient.read_until(b"DMPS-300-C>")
-	ver = retVal
+	ver = retVal.replace("v","")
 	return retVal
 
 def cd(dir):
@@ -134,9 +134,9 @@ def cd(dir):
 	output=telnetClient.read_until(b"DMPS-300-C>")
 	return output
 
-def copy(srcDir,dstDir,file):
+def copy(file):
 	global telnetClient
-	telnetClient.write(b'copyfile '+ srcDir +'\\'+ file +' '+ dstDir +'\\'+ file +' \r')
+	telnetClient.write(b'copyfile \"' + file +'\" \"\\USER\\' + file + '\" \r')
 	output = (telnetClient.read_some())
 	telnetClient.read_until(b"DMPS-300-C>")
 	return output
@@ -184,7 +184,6 @@ assert isTelnetLive() == true
 
 ## Version gate logic
 version()
-ver = ver.replace("v","")
 assert ver == reqVer   ## Prerequisite version number met
 
 ## freespace gate logic
@@ -196,15 +195,26 @@ assert free1 == free2 ## Memory is stable, no active operations
 #print 'moving ahead \r'
 #	
 ##BACKUP STEPS
-#if testDir(BAK) == true:
-#	print 'cd to BAK \r'
-#	cd(BAK)
-#	print 'copying ~.Manifest \r'
-#	copy(SIMPL,BAK,"~.Manifest")
-#	print 'copy done \r'
-#else:
-#	print "\r"
-#
+cd("\SIMPL")
+print 'copying ~.Manifest \r'
+copy("~.Manifest")
+print 'copying TEC HD v4.3.bin \r'
+copy("TEC HD v4.3.bin")
+print 'copying TEC HD v4.3.dip \r'
+copy("TEC HD v4.3.dip")
+print 'copying TEC HD v4.3.dsc \r'
+copy("TEC HD v4.3.dsc")
+print 'copying TEC HD v4.3.fp2 \r'
+copy("TEC HD v4.3.fp2")
+print 'copying TEC HD v4.3.ird \r'
+copy("TEC HD v4.3.ird")
+print 'copying TEC HD v4.3.rte \r'
+copy("TEC HD v4.3.rte")
+print 'copying TEC HD v4.3.rvi \r'
+copy("TEC HD v4.3.rvi")
+print 'copying .~Program_Boot_Data \r'
+copy(".~Program_Boot_Data")
+
 #if testDir(SIMPL) == true:
 #
 #	## Move new program
