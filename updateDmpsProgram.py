@@ -124,7 +124,7 @@ def version():
 			retVal = word
 
 	telnetClient.read_until(b"DMPS-300-C>")
-	ver = retVal
+	ver = retVal.replace("v","")
 	return retVal
 
 def cd(dir):
@@ -134,11 +134,34 @@ def cd(dir):
 	output=telnetClient.read_until(b"DMPS-300-C>")
 	return output
 
-def copy(srcDir,dstDir,file):
+def copy(file):
 	global telnetClient
-	telnetClient.write(b'copyfile '+ srcDir +'\\'+ file +' '+ dstDir +'\\'+ file +' \r')
-	output = (telnetClient.read_some())
-	telnetClient.read_until(b"DMPS-300-C>")
+	telnetClient.write(b'copyfile \"' + file +'\" \"\\USER\\' + file + '\" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	return output
+
+def backup():
+	global telnetClient
+	fn("del \USER\*.*")
+	telnetClient.write(b'copyfile "\SIMPL\~.Manifest" "\USER\~.Manifest" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "\SIMPL\TEC HD v4.3.bin" "\USER\TEC HD v4.3.bin" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "\SIMPL\TEC HD v4.3.dip" "\USER\TEC HD v4.3.dip" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "\SIMPL\TEC HD v4.3.dsc" "\USER\TEC HD v4.3.dsc" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "\SIMPL\TEC HD v4.3.fp2" "\USER\TEC HD v4.3.fp2" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "\SIMPL\TEC HD v4.3.ird" "\USER\TEC HD v4.3.ird" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "\SIMPL\TEC HD v4.3.rte" "\USER\TEC HD v4.3.rte" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "\SIMPL\TEC HD v4.3.rvi" "\USER\TEC HD v4.3.rvi" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "\SIMPL\.~Program_Boot_Data" "\USER\.~Program_Boot_Data" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	output = "Backed up"
 	return output
 
 def fn(func):
@@ -184,7 +207,6 @@ assert isTelnetLive() == true
 
 ## Version gate logic
 version()
-ver = ver.replace("v","")
 assert ver == reqVer   ## Prerequisite version number met
 
 ## freespace gate logic
@@ -196,15 +218,10 @@ assert free1 == free2 ## Memory is stable, no active operations
 #print 'moving ahead \r'
 #	
 ##BACKUP STEPS
-#if testDir(BAK) == true:
-#	print 'cd to BAK \r'
-#	cd(BAK)
-#	print 'copying ~.Manifest \r'
-#	copy(SIMPL,BAK,"~.Manifest")
-#	print 'copy done \r'
-#else:
-#	print "\r"
-#
+bak=backup()
+print bak
+
+
 #if testDir(SIMPL) == true:
 #
 #	## Move new program
