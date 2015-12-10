@@ -161,6 +161,8 @@ def backup():
 	output = (telnetClient.read_until(b"DMPS-300-C>"))
 	telnetClient.write(b'copyfile "\SIMPL\.~Program_Boot_Data" "\USER\.~Program_Boot_Data" \r')
 	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "\SPLUS\_S2_TEC_HD_v4_3.spl" "\USER\_S2_TEC_HD_v4_3.spl" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
 	output = "Backed up"
 	return output
 
@@ -221,17 +223,15 @@ assert free1 == free2 ## Memory is stable, no active operations
 bak=backup()
 print bak
 
-
-#if testDir(SIMPL) == true:
-#
-#	## Move new program
-#	#fn("stopprog")  # Stop the current DMPS program
-#	#print output
-#	#fn("progreset")
-#	#print output
-#	#fn("progcom")
-#	#print output
-#	print free()
+if testDir(SIMPL) == true:
+	## Move new program
+	#fn("stopprog")  # Stop the current DMPS program
+	#print output
+	#fn("progreset")
+	#print output
+	#fn("progcom")
+	#print output
+	print free()
 
 
 ## Close active session
