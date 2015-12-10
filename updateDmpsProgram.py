@@ -137,8 +137,32 @@ def cd(dir):
 def copy(file):
 	global telnetClient
 	telnetClient.write(b'copyfile \"' + file +'\" \"\\USER\\' + file + '\" \r')
-	output = (telnetClient.read_some())
-	telnetClient.read_until(b"DMPS-300-C>")
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	return output
+
+def backup():
+	global telnetClient
+	fn("del \USER\*.*")
+	cd("\SIMPL")
+	telnetClient.write(b'copyfile "~.Manifest" "\USER\~.Manifest" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "TEC HD v4.3.bin" "\USER\TEC HD v4.3.bin" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "TEC HD v4.3.dip" "\USER\TEC HD v4.3.dip" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "TEC HD v4.3.dsc" "\USER\TEC HD v4.3.dsc" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "TEC HD v4.3.fp2" "\USER\TEC HD v4.3.fp2" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "TEC HD v4.3.ird" "\USER\TEC HD v4.3.ird" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "TEC HD v4.3.rte" "\USER\TEC HD v4.3.rte" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile "TEC HD v4.3.rvi" "\USER\TEC HD v4.3.rvi" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	telnetClient.write(b'copyfile ".~Program_Boot_Data" "\USER\.~Program_Boot_Data" \r')
+	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	output = "Backed up"
 	return output
 
 def fn(func):
@@ -195,25 +219,9 @@ assert free1 == free2 ## Memory is stable, no active operations
 #print 'moving ahead \r'
 #	
 ##BACKUP STEPS
-cd("\SIMPL")
-print 'copying ~.Manifest \r'
-copy("~.Manifest")
-print 'copying TEC HD v4.3.bin \r'
-copy("TEC HD v4.3.bin")
-print 'copying TEC HD v4.3.dip \r'
-copy("TEC HD v4.3.dip")
-print 'copying TEC HD v4.3.dsc \r'
-copy("TEC HD v4.3.dsc")
-print 'copying TEC HD v4.3.fp2 \r'
-copy("TEC HD v4.3.fp2")
-print 'copying TEC HD v4.3.ird \r'
-copy("TEC HD v4.3.ird")
-print 'copying TEC HD v4.3.rte \r'
-copy("TEC HD v4.3.rte")
-print 'copying TEC HD v4.3.rvi \r'
-copy("TEC HD v4.3.rvi")
-print 'copying .~Program_Boot_Data \r'
-copy(".~Program_Boot_Data")
+bak=backup()
+print bak
+
 
 #if testDir(SIMPL) == true:
 #
