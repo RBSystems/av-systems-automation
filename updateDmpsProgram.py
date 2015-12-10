@@ -31,11 +31,27 @@ false = "false"
 parserResult = ""
 telnetClient = telnetlib.Telnet()
 
-### Halt Function ###
+### System Functions ###
 
 def halt(reason):
 	print reason
 	sys.exit()
+
+def is_number(s):
+	try:
+		float(s)
+		return true
+	except ValueError:
+		pass
+
+	try:
+		import unicodedata
+		unicodedata.numeric(s)
+		return true
+	except (TypeError, ValueError):
+		pass
+	return false
+
 
 ### HANDLE ARGUMENTS ###
 if len(sys.argv) <> 3:
