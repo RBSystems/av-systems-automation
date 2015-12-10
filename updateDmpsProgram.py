@@ -109,7 +109,7 @@ def ramfree():
 	return ramfree
 
 def version():
-	global telnetClient,ver
+	global telnetClient,ver,newProjectPath,projectDir,upgradeVer
 	telnetClient.write(b'\r\rprogcomments \r')
 	localVer = (telnetClient.read_until("Program File"))
 	split = localVer.split("TEC")
@@ -129,6 +129,7 @@ def version():
 
 	telnetClient.read_until(b"DMPS-300-C>")
 	ver = retVal.replace("v","")
+	newProjectPath = projectDir + "\\TEC HD v" + upgradeVer + ".spz"
 	return retVal
 
 def cd(dir):
@@ -196,7 +197,7 @@ def rollUpdate(ip,path):
     subprocess.call(['cp',orig,'orig_bak'])
     subprocess.call(['mv',tmp,orig])
 	subprocess.call([crestronExec,workspace])
-
+	return "Update complete"
 
 ### END FUNCTIONS ###
 
@@ -245,6 +246,7 @@ assert free1 == free2 ## Memory is stable, no active operations
 bak=backup()
 print bak
 
+rollUpdate(host,newProjectPath)
 
 #if testDir(SIMPL) == true:
 #
