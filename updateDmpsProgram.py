@@ -8,6 +8,7 @@ import os
 from parse import *
 import socket
 import telnetlib
+import time
 
 host = '10.6.36.51'
 port = 41795
@@ -30,6 +31,8 @@ true = "true"
 false = "false"
 parserResult = ""
 telnetClient = telnetlib.Telnet()
+simplfiles = ["~.Manifest","TEC HD v4.3.bin","TEC HD v4.3.dip","TEC HD v4.3.dsc","TEC HD v4.3.fp2","TEC HD v4.3.ird","TEC HD v4.3.rte","TEC HD v4.3.rvi",".~Program_Boot_Data"]
+splusfiles = ["_S2_TEC_HD_v4_3.spl"]
 
 ### System Functions ###
 
@@ -189,10 +192,16 @@ def fn(func):
 	global telnetClient
 	telnetClient.write(b''+ func + ' \r')
 	output = telnetClient.read_until(b"DMPS-300-C>")
+	print output
 	return output
 
 def push(file):
 	global telnetClient
+
+def cleanTime(t):
+	tmp = t[4:] # Remove first four charachters, i.e. "Mon "
+	tmp = t[:-8] # Remove last 5 characters, i.e. " 2015"
+	return tmp
 
 
 ### END FUNCTIONS ###
@@ -222,9 +231,11 @@ assert isTelnetLive() == true
 
 ## iptable gate logic
 #iptable()
+#assert iptable == something
 
 ## system info gate logic
 #info()
+#assert info == something
 
 ## Version gate logic
 version()
@@ -235,12 +246,9 @@ free1=free()
 free2=free()
 assert free1 == free2 ## Memory is stable, no active operations
 
-## Move ahead
-#print 'moving ahead \r'
-#	
 ##BACKUP STEPS
-bak=backup()
-print bak
+#bak=backup()
+#print bak
 
 if testDir(SIMPL) == true:
 	# Move new program
@@ -248,8 +256,14 @@ if testDir(SIMPL) == true:
 	print output
 	fn("del \SIMPL\*.*")
 	fn("del \SPLUS\*.*")
+	cd("\SIMPL")
 
-	#xput TEC HD v4.3.dip
+	for f in simplfiles:
+		(mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat(f)
+		cDate = time.ctime(mtime)
+		parsed = cDate.replace("Mon ","")
+
+	print fn("xput" + fileSize + " " + fileDate + " " + fileName)
 	#xput .~Program_Boot_Data
 	#xput TEC HD v4.3.bin
 	#xput TEC HD v4.3.rte
@@ -270,8 +284,8 @@ if testDir(SIMPL) == true:
 	#progreset
 	#progcom
 	
-version()
-assert ver == upgradeVer   ## Prerequisite version number met
+#version()
+#assert ver == upgradeVer   ## Prerequisite version number met
 
 ## Close active session
 telnetClient = closeTelnet()
