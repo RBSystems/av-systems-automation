@@ -20,8 +20,6 @@ splusExists = ""
 simplExists = ""
 iptable = ""
 info = ""
-free = ""
-ramfree = ""
 ver = ""
 halt = 0
 haltReason = ""
@@ -36,6 +34,7 @@ telnetClient = telnetlib.Telnet()
 ### Halt Function ###
 
 def halt(reason):
+	print reason
 	sys.exit()
 
 ### HANDLE ARGUMENTS ###
@@ -92,14 +91,14 @@ def info():
 	return info
 
 def free():
-	global telnetClient,free
+	global telnetClient
 	telnetClient.write(b'free \r')
 	free = (telnetClient.read_some())
 	telnetClient.read_until(b"DMPS-300-C>")
 	return free
 
 def ramfree():
-	global telnetClient,ramfree
+	global telnetClient
 	telnetClient.write(b'ramfree \r')
 	ramfree = (telnetClient.read_some())
 	telnetClient.read_until(b"DMPS-300-C>")
@@ -175,7 +174,6 @@ projectDir=os.path.abspath(os.getcwd())
 os.chdir(projectDir + "/build")
 
 telnetClient=openTelnet()
-
 assert isTelnetLive() == true
 
 ## iptable gate logic
@@ -186,11 +184,13 @@ assert isTelnetLive() == true
 
 ## Version gate logic
 version()
-if ver.replace("v","") <> reqVer:
-	halt("Cannot upgrade from this version")
+ver = ver.replace("v","")
+assert ver == reqVer   ## Prerequisite version number met
 
 ## freespace gate logic
-#free()
+free1=free()
+free2=free()
+assert free1 == free2 ## Memory is stable, no active operations
 
 ## Move ahead
 #print 'moving ahead \r'
