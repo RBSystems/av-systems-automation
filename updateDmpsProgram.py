@@ -12,8 +12,8 @@ import telnetlib
 host = '10.6.36.51'
 port = 41795
 size = 1024
-reqVer = ""
-upgradeVer = ""
+reqVer = "4.3"
+upgradeVer = "4.3"
 
 output = ""
 splusExists = ""
@@ -29,6 +29,10 @@ BAK = "USER"
 true = "true"
 false = "false"
 parserResult = ""
+crestronExec = "C:\Program Files (x86)\Crestron\Toolbox\Toolbox.exe"
+workspace = "C:\automationWorkspace\uploadNewProgram.ctw"
+projectDir = os.path.abspath(os.getcwd())
+newProjectPath = projectDir + "\\TEC HD v" + upgradeVer + ".spz"
 telnetClient = telnetlib.Telnet()
 
 ### Halt Function ###
@@ -172,6 +176,26 @@ def fn(func):
 
 def push(file):
 	global telnetClient
+
+def rollUpdate(ip,path):
+	global workspace,crestronExec
+	import subprocess
+	os.chdir("c:\automationWorkspace")
+	orig = "uploadNewProgram.txt"
+	tmp = ip + "_tmp.txt"
+    origIp = "10.6.36.51"
+    origPath = "C:\Users\dgclegg\Documents\repos\My TEC HD\TEC HD v4.3.spz"
+    input = open(orig)
+    output = open(tmp, 'w')
+    for s in input.xreadlines(  ):
+    	s = s.replace(origIp,ip)
+    	s = s.replace(origPath,path)
+        output.write(s)
+    output.close(  )
+    input.close(  )
+    subprocess.call(['cp',orig,'orig_bak'])
+    subprocess.call(['mv',tmp,orig])
+	subprocess.call([crestronExec,workspace])
 
 
 ### END FUNCTIONS ###
