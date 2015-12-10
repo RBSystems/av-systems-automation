@@ -47,6 +47,7 @@ else:
 	upgradeVer = sys.argv[2]
 	assert reqVer.isdecimal() == true
 	assert upgradeVer.isdecimal() == true
+	## !! TEST TO SEE IF VERSIONS REQUESTED EXIST
 
 ### END HANDLE ARGUMENTS ###
 
