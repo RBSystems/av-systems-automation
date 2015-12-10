@@ -45,8 +45,8 @@ if len(sys.argv) <> 3:
 else:
 	reqVer = sys.argv[1]
 	upgradeVer = sys.argv[2]
-	assert reqVer.isdecimal() == true
-	assert upgradeVer.isdecimal() == true
+	assert is_number(reqVer) == true
+	assert is_number(upgradeVer) == true
 	## !! TEST TO SEE IF VERSIONS REQUESTED EXIST
 
 ### END HANDLE ARGUMENTS ###
@@ -233,26 +233,26 @@ if testDir(SIMPL) == true:
 	fn("del \SIMPL\*.*")
 	fn("del \SPLUS\*.*")
 
-	xput TEC HD v4.3.dip
-	xput .~Program_Boot_Data
-	xput TEC HD v4.3.bin
-	xput TEC HD v4.3.rte
-	xput TEC HD v4.3.fp2
-	xput TEC HD v4.3.ird
-	isdir \SPLUS
-	// TEST TRUE
-	cd \SPLUS\
-	xput _S2_TEC_HD_v4_3.spl
-	isdir \SIMPL
-	// TEST TRUE
-	cd \SIMPL\
-	xput 87255 12-07-15 15:19:28 TEC HD v4.3.rvi
-	xput 883 12-07-15 15:19:28 TEC HD v4.3.dsc
-	xput 173 12-07-15 15:19:28 ~.Manifest
-	xput 165497 12-07-15 23:13:38 TEC HD v4.3.zig
-	\r\n x 4
-	progreset
-	progcom
+	#xput TEC HD v4.3.dip
+	#xput .~Program_Boot_Data
+	#xput TEC HD v4.3.bin
+	#xput TEC HD v4.3.rte
+	#xput TEC HD v4.3.fp2
+	#xput TEC HD v4.3.ird
+	#isdir \SPLUS
+	#// TEST TRUE
+	#cd \SPLUS\
+	#xput _S2_TEC_HD_v4_3.spl
+	#isdir \SIMPL
+	#// TEST TRUE
+	#cd \SIMPL\
+	#xput 87255 12-07-15 15:19:28 TEC HD v4.3.rvi
+	#xput 883 12-07-15 15:19:28 TEC HD v4.3.dsc
+	#xput 173 12-07-15 15:19:28 ~.Manifest
+	#xput 165497 12-07-15 23:13:38 TEC HD v4.3.zig
+	#\r\n x 4
+	#progreset
+	#progcom
 	
 version()
 assert ver == upgradeVer   ## Prerequisite version number met
