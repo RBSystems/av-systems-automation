@@ -7,6 +7,7 @@ import ftplib
 import os
 from parse import *
 import socket
+import subprocess
 import telnetlib
 
 host = '10.6.36.51'
@@ -190,25 +191,26 @@ def push(file):
 
 def rollUpdate(ip,path):
 	global workspace,crestronExec
-	import subprocess
-	print "Changing to automationWorkspace folder"
-	os.chdir("c:\automationWorkspace")
-	orig = "uploadNewProgram.txt"
-	tmp = ip + "_tmp.txt"
-	origIp = "10.6.36.51"
-	origPath = "C:\Users\dgclegg\Documents\repos\My TEC HD\TEC HD v4.3.spz"
-	print "Updating script file with new IP"
-	input = open(orig)
-	output = open(tmp, 'w')
-	for s in input.xreadlines(  ):
-		s = s.replace(origIp,ip)
-		s = s.replace(origPath,path)
-		output.write(s)
-	output.close(  )
-	input.close(  )
-	subprocess.call(['cp',orig,'orig_bak'])
-	print "Overwriting original script with new script file"
-	subprocess.call(['mv',tmp,orig])
+	#print "Changing to automationWorkspace folder"
+	#os.chdir("c:\\automationWorkspace")
+	#orig = "uploadNewProgram.txt"
+	#tmp = ip + "_tmp.txt"
+	#origIp = "10.6.36.51"
+	#origPath = "C:\\Users\\dgclegg\Documents\\repos\\My TEC HD\\TEC HD v4.3.spz"
+	#print "Updating script file with new IP"
+	#input = open(orig)
+	#output = open(tmp, 'w')
+	#for s in input.xreadlines(  ):
+	#	s = s.replace(origIp,ip)
+	#	s = s.replace(origPath,path)
+	#	output.write(s)
+	#output.close(  )
+	#input.close(  )
+	#subprocess.call(['cp',orig,'orig_bak'])
+	#print "Overwriting original script with new script file"
+	#subprocess.call(['mv',tmp,orig])
+	print crestronExec
+	print workspace
 	subprocess.call([crestronExec,workspace])
 	return "Update complete"
 
@@ -263,7 +265,7 @@ print "Running backup \r"
 bak=backup()
 print bak
 
-rollUpdate(host,newProjectPath)
+print rollUpdate(host,newProjectPath)
 
 #if testDir(SIMPL) == true:
 #
