@@ -29,8 +29,8 @@ BAK = "USER"
 true = "true"
 false = "false"
 parserResult = ""
-crestronExec = "C:\Program Files (x86)\Crestron\Toolbox\Toolbox.exe"
-workspace = "C:\automationWorkspace\uploadNewProgram.ctw"
+crestronExec = "C:\\Program Files (x86)\\Crestron\\Toolbox\\Toolbox.exe"
+workspace = "C:\\automationWorkspace\\uploadNewProgram.ctw"
 projectDir = os.path.abspath(os.getcwd())
 newProjectPath = projectDir + "\\TEC HD v" + upgradeVer + ".spz"
 telnetClient = telnetlib.Telnet()
@@ -192,11 +192,11 @@ def rollUpdate(ip,path):
 	global workspace,crestronExec
 	import subprocess
 	print "Changing to automationWorkspace folder"
-	os.chdir("c:\automationWorkspace")
-	orig = "uploadNewProgram.txt"
+	os.chdir("c:\\automationWorkspace")
+	orig = "c:\\automationWorkspace\\uploadNewProgram.txt"
 	tmp = ip + "_tmp.txt"
 	origIp = "10.6.36.51"
-	origPath = "C:\Users\dgclegg\Documents\repos\My TEC HD\TEC HD v4.3.spz"
+	origPath = "C:\\Users\\dgclegg\\Documents\\repos\\My TEC HD\TEC HD v4.3.spz"
 	print "Updating script file with new IP"
 	input = open(orig)
 	output = open(tmp, 'w')
