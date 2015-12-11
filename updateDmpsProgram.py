@@ -148,25 +148,35 @@ def copy(file):
 def backup():
 	global telnetClient
 	fn("del \USER\*.*")
+	print "Copying Manifest \r"
 	telnetClient.write(b'copyfile "\SIMPL\~.Manifest" "\USER\~.Manifest" \r')
 	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	print "Copying TEC HD v4.3.bin \r"
 	telnetClient.write(b'copyfile "\SIMPL\TEC HD v4.3.bin" "\USER\TEC HD v4.3.bin" \r')
 	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	print "Copying TEC HD v4.3.dip \r"
 	telnetClient.write(b'copyfile "\SIMPL\TEC HD v4.3.dip" "\USER\TEC HD v4.3.dip" \r')
 	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	print "Copying TEC HD v4.3.dsc \r"
 	telnetClient.write(b'copyfile "\SIMPL\TEC HD v4.3.dsc" "\USER\TEC HD v4.3.dsc" \r')
 	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	print "Copying TEC HD v4.3.fp2 \r"
 	telnetClient.write(b'copyfile "\SIMPL\TEC HD v4.3.fp2" "\USER\TEC HD v4.3.fp2" \r')
 	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	print "Copying TEC HD v4.3.ird \r"
 	telnetClient.write(b'copyfile "\SIMPL\TEC HD v4.3.ird" "\USER\TEC HD v4.3.ird" \r')
 	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	print "Copying TEC HD v4.3.rte \r"
 	telnetClient.write(b'copyfile "\SIMPL\TEC HD v4.3.rte" "\USER\TEC HD v4.3.rte" \r')
 	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	print "Copying TEC HD v4.3.rvi \r"
 	telnetClient.write(b'copyfile "\SIMPL\TEC HD v4.3.rvi" "\USER\TEC HD v4.3.rvi" \r')
 	output = (telnetClient.read_until(b"DMPS-300-C>"))
+	print "Copying Program_Boot_Data \r"
 	telnetClient.write(b'copyfile "\SIMPL\.~Program_Boot_Data" "\USER\.~Program_Boot_Data" \r')
 	output = (telnetClient.read_until(b"DMPS-300-C>"))
 	output = "Backed up"
+	print "Backup complete \r"
 	return output
 
 def fn(func):
@@ -181,11 +191,13 @@ def push(file):
 def rollUpdate(ip,path):
 	global workspace,crestronExec
 	import subprocess
+	print "Changing to automationWorkspace folder"
 	os.chdir("c:\automationWorkspace")
 	orig = "uploadNewProgram.txt"
 	tmp = ip + "_tmp.txt"
 	origIp = "10.6.36.51"
 	origPath = "C:\Users\dgclegg\Documents\repos\My TEC HD\TEC HD v4.3.spz"
+	print "Updating script file with new IP"
 	input = open(orig)
 	output = open(tmp, 'w')
 	for s in input.xreadlines(  ):
@@ -195,6 +207,7 @@ def rollUpdate(ip,path):
 	output.close(  )
 	input.close(  )
 	subprocess.call(['cp',orig,'orig_bak'])
+	print "Overwriting original script with new script file"
 	subprocess.call(['mv',tmp,orig])
 	subprocess.call([crestronExec,workspace])
 	return "Update complete"
@@ -219,8 +232,10 @@ def rollUpdate(ip,path):
 
 #Change Directory to build dir
 projectDir=os.path.abspath(os.getcwd())
+print "Changing to " + projectDir + "/build \r"
 os.chdir(projectDir + "/build")
 
+print "Opening remote session \r"
 telnetClient=openTelnet()
 assert isTelnetLive() == true
 
@@ -232,6 +247,7 @@ assert isTelnetLive() == true
 
 ## Version gate logic
 version()
+print "Running version " + ver
 assert ver == reqVer   ## Prerequisite version number met
 
 ## freespace gate logic
@@ -243,6 +259,7 @@ assert free1 == free2 ## Memory is stable, no active operations
 #print 'moving ahead \r'
 #	
 ##BACKUP STEPS
+print "Running backup \r"
 bak=backup()
 print bak
 
@@ -263,3 +280,4 @@ rollUpdate(host,newProjectPath)
 ## Close active session
 telnetClient=closeTelnet()
 assert isTelnetLive() == false
+print "Remote session closed"
