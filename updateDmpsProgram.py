@@ -31,9 +31,9 @@ true = "true"
 false = "false"
 parserResult = ""
 crestronExec = "C:\Program Files (x86)\Crestron\Toolbox\Toolbox.exe"
-workspace = "C:\automationWorkspace\uploadNewProgram.ctw"
+workspace = "C:\\automationWorkspace\uploadNewProgram.ctw"
 projectDir = os.path.abspath(os.getcwd())
-newProjectPath = projectDir + "\\TEC HD v" + upgradeVer + ".spz"
+newProjectPath = projectDir + "\TEC HD v" + upgradeVer + ".spz"
 telnetClient = telnetlib.Telnet()
 
 ### Halt Function ###
@@ -130,7 +130,7 @@ def version():
 
 	telnetClient.read_until(b"DMPS-300-C>")
 	ver = retVal.replace("v","")
-	newProjectPath = projectDir + "\\TEC HD v" + upgradeVer + ".spz"
+	newProjectPath = projectDir + "\TEC HD v" + upgradeVer + ".spz"
 	return retVal
 
 def cd(dir):
@@ -142,7 +142,7 @@ def cd(dir):
 
 def copy(file):
 	global telnetClient
-	telnetClient.write(b'copyfile \"' + file +'\" \"\\USER\\' + file + '\" \r')
+	telnetClient.write(b'copyfile \"' + file +'\" \"\USER\\' + file + '\" \r')
 	output = (telnetClient.read_until(b"DMPS-300-C>"))
 	return output
 
@@ -191,26 +191,6 @@ def push(file):
 
 def rollUpdate(ip,path):
 	global workspace,crestronExec
-	#print "Changing to automationWorkspace folder"
-	#os.chdir("c:\\automationWorkspace")
-	#orig = "uploadNewProgram.txt"
-	#tmp = ip + "_tmp.txt"
-	#origIp = "10.6.36.51"
-	#origPath = "C:\\Users\\dgclegg\Documents\\repos\\My TEC HD\\TEC HD v4.3.spz"
-	#print "Updating script file with new IP"
-	#input = open(orig)
-	#output = open(tmp, 'w')
-	#for s in input.xreadlines(  ):
-	#	s = s.replace(origIp,ip)
-	#	s = s.replace(origPath,path)
-	#	output.write(s)
-	#output.close(  )
-	#input.close(  )
-	#subprocess.call(['cp',orig,'orig_bak'])
-	#print "Overwriting original script with new script file"
-	#subprocess.call(['mv',tmp,orig])
-	print crestronExec
-	print workspace
 	subprocess.call([crestronExec,workspace])
 	return "Update complete"
 
