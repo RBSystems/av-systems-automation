@@ -11,9 +11,9 @@ import time
 
 es = Elasticsearch(host='avreports.byu.edu',port='9200')
 
-res = es.search(index="events_v2", doc_type='user',size=1)
+res = es.search(index="events_v3", doc_type='user',size=1)
 tot=res['hits']['total']
-res = es.search(index="events_v2", doc_type='user',size=tot)
+res = es.search(index="events_v3", doc_type='user',size=tot)
 
 #result = helpers.reindex(es,'events','events_v2')
 
@@ -66,5 +66,5 @@ for hit in hits:
 			'floor': floor
 		}
 	}
-	innerRes = es.index(index="events_v3",doc_type="user",body=doc)
+	innerRes = es.index(index="events",doc_type="user",body=doc)
 	print(innerRes)
