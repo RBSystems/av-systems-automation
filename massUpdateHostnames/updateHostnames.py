@@ -11,6 +11,7 @@ from parse import *
 import socket
 import subprocess
 import telnetlib
+import time
 
 
 host = 'avreports.byu.edu'
@@ -26,6 +27,7 @@ false = "false"
 parserResult = ""
 devType = ""
 itemList = ""
+consoleOutput = ""
 projectDir = os.path.abspath(os.getcwd())
 telnetClient = telnetlib.Telnet()
 
@@ -108,18 +110,29 @@ print itemList
 
 print "Opening remote session \r"
 for i in itemList:
-	telnetClient = openTelnet(i[1])
-	output = 
+	h = i[0]
+	ip = i[1]
+	cmd = "hostname %s \r" % h
+	telnetClient = openTelnet(ip)
+	assert isTelnetLive() == true
 
-#telnetClient=openTelnet()
-#assert isTelnetLive() == true
 
-## freespace gate logic
-free1=free()
-free2=free()
-assert free1 == free2 ## Memory is stable, no active operations
+	time.sleep(2)
+	output = fn(cmd)
+	time.sleep(5)
+	consoleOutput = (telnetClient.read_until(b"DMPS-300-C>"))
+	print consoleOutput
 
-## Close active session
-telnetClient=closeTelnet()
-assert isTelnetLive() == false
-print "Remote session closed"
+	#output = fn("reboot")
+	#telnetClient.close()
+	## Close active session
+	telnetClient=closeTelnet()
+	assert isTelnetLive() == false
+	print "Remote session closed"
+
+
+### freespace gate logic
+#free1=free()
+#free2=free()
+#assert free1 == free2 ## Memory is stable, no active operations
+
