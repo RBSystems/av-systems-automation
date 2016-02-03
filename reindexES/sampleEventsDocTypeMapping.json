@@ -1,5 +1,5 @@
 {
-	"aliases": {"events_v3":{}},
+	"aliases": {"events_v4":{}},
 	"mappings": {
 		"system": {
 			"properties": {
@@ -57,6 +57,10 @@
 						}
 					}
 				},
+				"session": {
+					"type":"string",
+					"index": "not_analyzed"
+					},
 				"timestamp": {
 					"type": "date",
 					"format": "dateOptionalTime"
@@ -119,6 +123,10 @@
 						}
 					}
 				},
+				"session": {
+					"type":"string",
+					"index": "not_analyzed"
+					},
 				"timestamp": {
 					"type": "date",
 					"format": "dateOptionalTime",
@@ -183,6 +191,10 @@
 						}
 					}
 				},
+				"session": {
+					"type":"string",
+					"index": "not_analyzed"
+					},
 				"timestamp": {
 					"type": "date",
 					"format": "dateOptionalTime",

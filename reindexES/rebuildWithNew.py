@@ -11,13 +11,9 @@ import time
 
 es = Elasticsearch(host='avreports.byu.edu',port='9200')
 
-res = es.search(index="events_v3", doc_type='user',size=1)
+res = es.search(index="events", doc_type='user',size=1)
 tot=res['hits']['total']
-res = es.search(index="events_v3", doc_type='user',size=tot)
-
-#result = helpers.reindex(es,'events','events_v2')
-
-#print result
+res = es.search(index="events", doc_type='user',size=tot)
 
 #get data from all results
 hits=res['hits']['hits']

@@ -1,7 +1,7 @@
-curl -XDELETE 'http://avreports.byu.edu:9200/events_v3'
+curl -XDELETE 'http://avreports.byu.edu:9200/events'
 
-curl -XPOST 'http://avreports.byu.edu:9200/events_v3' -d '{
-    "aliases": {"events_v3":{}},
+curl -XPOST 'http://avreports.byu.edu:9200/events' -d '{
+    "aliases": {"events":{}},
     "mappings": {
         "system": {
             "properties": {

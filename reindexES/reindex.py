@@ -11,6 +11,6 @@ import time
 
 es = Elasticsearch(host='avreports.byu.edu',port='9200')
 
-result = helpers.reindex(es,'events','events_v2')
+result = helpers.reindex(es,'events_v3','events_v4')
 
 print result
