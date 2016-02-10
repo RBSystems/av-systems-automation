@@ -1,29 +1,34 @@
 Param (
         [Parameter(ValueFromPipeline=$true)]
         [string]$Csv = ".\tp.csv",
-        [string]$output = ".\touchpanelUpdateOutput.txt" #,
-        #[string]$firmwarePath
+        [string]$output = ".\touchpanelUpdate_log"
     )
 
 Import-Module PSFTP
+
 . .\Get-Telnet.ps1
+. .\Log.ps1
 
-$Hnames = @()
-$Ip = @()
+#CONSTANTS
 $Port = "41795"
-$fw = ""
 $fliptop = ".\firmware\ft600_1.500.0013.puf"
+$fliptop_img = "ft.vtz"
 $teclite = ".\firmware\tpmc-4sm_11.92.113.001.puf"
+$teclite_img = "lite.vtz"
 $hd = ".\firmware\tsxxx0_series_1.012.0017.002.puf"
-
-$fliptop_img = ".\vtz\fliptop\"
-$teclite_img = ".\vtz\tpms\"
-$hd_img = ".\vtz\hd\"
-
+$hd_img = "hd.vtz"
+$fliptopPath = "$($pwd)\vtz\$($fliptop_img)"
+$teclitePath = "$($pwd)\vtz\$($teclite_img)"
+$hdPath = "$($pwd)\vtz\$($hd_img)"
 
 $username = "anonymous"
 $password = $username | ConvertTo-SecureString -AsPlainText -Force
 $cred = new-object -typename System.Management.Automation.PSCredential -argumentlist $username, $password
+
+#Variables
+$Hnames = @()
+$Ip = @()
+$fw = ""
 
 Import-Csv $Csv -Delimiter "," | `
     ForEach-Object { 
@@ -31,16 +36,22 @@ Import-Csv $Csv -Delimiter "," | `
         $Ip += $_.IP;
     }
 
-Write-Host ($Hnames)
+$Now = Get-Date -Format "yyyy-MM-ddTHH:mm:ss"
+
+$output = "$($output)_$($Now).txt"
+
+New-Item $output -ItemType file -force
 
 $Ip | Foreach {
     $cmds = @()
     $InnerIP = $_
 
-    Write-Host ($_)
+    Log -File $output -Message "Updating $($InnerIP)"
     
     $Where = [array]::IndexOf($Ip, $InnerIP )
     $H = $Hnames[$Where]
+
+    Log -File $output -Message "$($H)"
 
     $IPTablePath_preEdit = "c:\repos\av-systems-automation\updateTouchpanels\" + $H + "_IPTable.csv"
     $IPTablePath = "c:\repos\av-systems-automation\updateTouchpanels\" + $H + "_IPTable.csv"
@@ -54,6 +65,7 @@ $Ip | Foreach {
     $IPTableEntry_IPID = @();
     Get-Telnet -RemoteHost "$InnerIP" -Commands "iptable" -OutputPath $IPTablePath_preEdit
 
+    Log -File $output -Message "Obtained IPTable for $($InnerIP)"
 
     ##Determine firmware by output of iptable
     
@@ -74,95 +86,104 @@ $Ip | Foreach {
     }
     elseif ($tpType -match 'TS')
     {
-        Add-FTPItem -Session $Session -Path "/FIRMWARE/" -LocalPath $teclite
+        Add-FTPItem -Session $Session -Path "/FIRMWARE/" -LocalPath $hd
         $deviceType = "HD";
     }
     elseif ($tpType -match 'TP')
     {
-        Add-FTPItem -Session $Session -Path "/FIRMWARE/" -LocalPath $hd 
+        Add-FTPItem -Session $Session -Path "/FIRMWARE/" -LocalPath $teclite 
         $deviceType = "lite";
     }
     else {
         exit
     }
+    Log -File $output -Message "Device Type: $($deviceType)"
 
     New-Item $IPTablePath -ItemType file -force
     Get-Content $IPTablePath_preEdit | Where-Object {($_ -notmatch 'IP Table') -and ($_ -notmatch '-')} | Set-Content $IPTablePath
-
+    
     ##Update Firmware
     #Wait for Touchpanel to come back
-
     do {
         Write-Host "waiting..."
         sleep 3      
-    } until(Test-NetConnection $InnerIP -Port 41795 | ? { $_.TcpTestSucceeded } )
+    } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
 
     New-Item $firmwareUpdatePath -ItemType file -force
     Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "puf"
-
+    
+    Log -File $output -Message "Updated firmware"
     #Initialize
     do {
         Write-Host "waiting..."
         sleep 3      
-    } until(Test-NetConnection $InnerIP -Port 41795 | ? { $_.TcpTestSucceeded } )
+    } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
+    Log -File $output -Message "Initializing $($InnerIP)"
     Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "initialize","y"
-
+    Log -File $output -Message "Initialized."
     #betacleanup
     do {
         Write-Host "waiting..."
         sleep 3      
-    } until(Test-NetConnection $InnerIP -Port 41795 | ? { $_.TcpTestSucceeded } )
+    } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
+    Log -File $output -Message "Running betacleanup..."
     Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "betacleanup","y"
+    Log -File $output -Message "Betacleanup complete"
 
     ############
     #Load project
     do {
         Write-Host "waiting..."
         sleep 3      
-    } until(Test-NetConnection $InnerIP -Port 41795 | ? { $_.TcpTestSucceeded } )
+    } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
 
+    $projName = ""
+    Log -File $output -Message "Uploading project..."
     if ($tpType -match 'FT')
     {
-        #Add-FTPItem -Session $Session -Path "/USER/" -LocalPath $fliptop_img
-        $deviceType = "flip";
+        Add-FTPItem -LocalPath "$($fliptopPath)" -Overwrite -Session $Session
+        $projName = $fliptop_img
     }
     elseif ($tpType -match 'TS')
     {
-        #Add-FTPItem -Session $Session -Path "/USER/" -LocalPath $teclite_img
-        $deviceType = "HD";
+        Add-FTPItem -LocalPath "$($hdPath)" -Overwrite -Session $Session
+        $projName = $hd_img
     }
     elseif ($tpType -match 'TP')
     {
-        #Add-FTPItem -Session $Session -Path "/USER/" -LocalPath $hd_img 
-        $deviceType = "lite";
-    }
-
-
-    #Recursively discover, mkdir and pushy files from local to remote
-    
-    $files = Get-ChildItem -Path $fliptop_img -File
-    $dirs = Get-ChildItem -Path $fliptop_img -Directory
-    $fPath = "/DISPLAY"
-
-    $files | foreach {
-        $p = $fliptop_img + "\" + $_.FullName + "." + $_.Extension
-        Add-FTPItem -Session $Session -Path $fPath -LocalPath $fliptop_img
-    }
-
-    $dirs | foreach {
-        $remotePath = "/DISPLAY/" + $_.Name
-        New-FTPItem -Path $remotePath -Name $_.Name -Session $Session
-        $subFiles = $_ | Get-ChildItem -File
-        $subDirs = $_ | Get-ChildItem -Directory
+        Add-FTPItem -LocalPath "$($teclitePath)" -Overwrite -Session $Session
+        $projName = $teclite_img
     }
 
     #Project Load
     do {
         Write-Host "waiting..."
         sleep 3      
-    } until(Test-NetConnection $InnerIP -Port 41795 | ? { $_.TcpTestSucceeded } )
-    Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "projectload","y"
+    } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
+    
+    Log -File $output -Message "Loading project..."
 
+    if ($tpType -notmatch 'TS'){
+        Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "cd \FTP","MOVEFILE $($projName) \ROMDISK\User\Display","reboot"
+    }
+    else
+    {
+        Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "cd \FTP","MOVEFILE $($projName) \ROMDISK\user\Display","reboot"
+    }
+    
+    do {
+        Write-Host "waiting..."
+        sleep 3      
+    } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
+    Sleep 60
+    Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "projectload"
+
+    do {
+        Write-Host "waiting..."
+        sleep 3      
+    } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
+    
+    Log -File $output -Message "Reloading IPTable for $($InnerIP)"
 
     #Parse IPTable
     Import-Csv $IPTablePath -Delimiter " " | `
