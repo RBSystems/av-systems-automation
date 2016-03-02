@@ -1,7 +1,8 @@
 Param (
         [Parameter(ValueFromPipeline=$true)]
         [string]$Csv = ".\tp.csv",
-        [string]$output = ".\touchpanelUpdate_log"
+        [string]$output = ".\touchpanelUpdate_log",
+        [string]$BuildNumber = "BUILDNUMBERGOESHERE"
     )
 
 Import-Module PSFTP
@@ -23,6 +24,10 @@ $hdPath = "$($pwd)\vtz\$($hd_img)"
 
 $username = "anonymous"
 $password = $username | ConvertTo-SecureString -AsPlainText -Force
+
+#-----
+#Is this necessary?
+#-----
 $cred = new-object -typename System.Management.Automation.PSCredential -argumentlist $username, $password
 
 #Variables
@@ -40,19 +45,23 @@ $Now = Get-Date -Format "yyyy-MM-ddTHH:mm:ss"
 
 $output = "$($output)_$($Now).txt"
 
-New-Item $output -ItemType file -force
+#We don't need this - we take care of this in the Log function
+#New-Item $output -ItemType file -force
 
 $Ip | Foreach {
     $cmds = @()
     $InnerIP = $_
 
-    Log -File $output -Message "Updating $($InnerIP)"
+    Log -BuildNo $BuildNumber -File $output -Message "Updating $($InnerIP)"
     
+    #get The hostname associated with this IP - create an array of objects with two properties and run a
+    #function of that.
     $Where = [array]::IndexOf($Ip, $InnerIP )
     $H = $Hnames[$Where]
 
-    Log -File $output -Message "$($H)"
+    Log -BuildNo $BuildNumber -File $output -Message "$($H)"
 
+    #This is the IP table denoting what? Where the touchpanel is? 
     $IPTablePath_preEdit = "c:\repos\av-systems-automation\updateTouchpanels\" + $H + "_IPTable.csv"
     $IPTablePath = "c:\repos\av-systems-automation\updateTouchpanels\" + $H + "_IPTable.csv"
     
@@ -65,7 +74,7 @@ $Ip | Foreach {
     $IPTableEntry_IPID = @();
     Get-Telnet -RemoteHost "$InnerIP" -Commands "iptable" -OutputPath $IPTablePath_preEdit
 
-    Log -File $output -Message "Obtained IPTable for $($InnerIP)"
+    Log -BuildNo $BuildNumber -File $output -Message "Obtained IPTable for $($InnerIP)"
 
     ##Determine firmware by output of iptable
     
@@ -97,9 +106,11 @@ $Ip | Foreach {
     else {
         exit
     }
-    Log -File $output -Message "Device Type: $($deviceType)"
+    Log -BuildNo $BuildNumber -File $output -Message "Device Type: $($deviceType)"
 
     New-Item $IPTablePath -ItemType file -force
+    
+    #what is the purpose of this? 
     Get-Content $IPTablePath_preEdit | Where-Object {($_ -notmatch 'IP Table') -and ($_ -notmatch '-')} | Set-Content $IPTablePath
     
     ##Update Firmware
@@ -110,25 +121,29 @@ $Ip | Foreach {
     } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
 
     New-Item $firmwareUpdatePath -ItemType file -force
+    #Why is this output not set to the log file? 
     Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "puf"
     
-    Log -File $output -Message "Updated firmware"
+    Log -BuildNo $BuildNumber -File $output -Message "Updated firmware"
     #Initialize
     do {
         Write-Host "waiting..."
         sleep 3      
     } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
-    Log -File $output -Message "Initializing $($InnerIP)"
+
+    Log -BuildNo $BuildNumber -File $output -Message "Initializing $($InnerIP)"
     Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "initialize","y"
-    Log -File $output -Message "Initialized."
+    Log -BuildNo $BuildNumber -File $output -Message "Initialized."
+
     #betacleanup
     do {
         Write-Host "waiting..."
         sleep 3      
     } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
-    Log -File $output -Message "Running betacleanup..."
+
+    Log -BuildNo $BuildNumber -File $output -Message "Running betacleanup..."
     Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "betacleanup","y"
-    Log -File $output -Message "Betacleanup complete"
+    Log -BuildNo $BuildNumber -File $output -Message "Betacleanup complete"
 
     ############
     #Load project
@@ -138,21 +153,23 @@ $Ip | Foreach {
     } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
 
     $projName = ""
-    Log -File $output -Message "Uploading project..."
-    if ($tpType -match 'FT')
-    {
-        Add-FTPItem -LocalPath "$($fliptopPath)" -Overwrite -Session $Session
-        $projName = $fliptop_img
-    }
-    elseif ($tpType -match 'TS')
-    {
-        Add-FTPItem -LocalPath "$($hdPath)" -Overwrite -Session $Session
-        $projName = $hd_img
-    }
-    elseif ($tpType -match 'TP')
-    {
-        Add-FTPItem -LocalPath "$($teclitePath)" -Overwrite -Session $Session
-        $projName = $teclite_img
+    Log -BuildNo $BuildNumber -File $output -Message "Uploading project..."
+    switch ($tpType) {
+        'FT'
+        {
+            Add-FTPItem -LocalPath "$($fliptopPath)" -Overwrite -Session $Session
+            $projName = $fliptop_img
+        }        
+        'TS'
+        {
+            Add-FTPItem -LocalPath "$($hdPath)" -Overwrite -Session $Session
+            $projName = $hd_img
+        }        
+        'TP'
+        {
+            Add-FTPItem -LocalPath "$($teclitePath)" -Overwrite -Session $Session
+            $projName = $teclite_img
+        }
     }
 
     #Project Load
@@ -161,7 +178,7 @@ $Ip | Foreach {
         sleep 3      
     } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
     
-    Log -File $output -Message "Loading project..."
+    Log -BuildNo $BuildNumber -File $output -Message "Loading project..."
 
     if ($tpType -notmatch 'TS'){
         Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "cd \FTP","MOVEFILE $($projName) \ROMDISK\User\Display","reboot"
@@ -183,7 +200,7 @@ $Ip | Foreach {
         sleep 3      
     } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
     
-    Log -File $output -Message "Reloading IPTable for $($InnerIP)"
+    Log -BuildNo $BuildNumber -File $output -Message "Reloading IPTable for $($InnerIP)"
 
     #Parse IPTable
     Import-Csv $IPTablePath -Delimiter " " | `

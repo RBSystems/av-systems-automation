@@ -27,7 +27,8 @@ Function Log
     Param (
             [Parameter(ValueFromPipeline=$true)]
             [string]$File,
-            [string]$Message
+            [string]$Message,
+            [string]$BuildNo = "BUILDNUMBERGOESHERE"
         )
 
     filter timestamp {"$(Get-Date -Format o): $_"}
@@ -35,7 +36,7 @@ Function Log
     if ((Test-Path $File) -eq $false) {
         New-Item -Path $File -ItemType File
         }
-    $line = & "`n" + $Message | timestamp
+    $line = & "`n" + $BuildNo + ": " $Message | timestamp
     Write-Host($line)
-    Add-Content -Path $File -Value $line
+    $line | Add-Content $File
 }
