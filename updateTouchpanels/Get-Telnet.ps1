@@ -111,10 +111,18 @@ Function Get-Telnet
         }
     }
     Else     
-    {   $Result = "Unable to connect to host: $($RemoteHost):$Port"
+    {   $Result = "ERROR: Unable to connect to host: $($RemoteHost):$Port"
+        Throw [string] $Result
     }
+
+
     #Done, now save the results to a file
     $Result | Out-File $OutputPath
+
+    #This is where we would check for errors, and if we don't get a success from the client, we throw an error to be caught by updateTp.
+
+    Write-Host('TELNET:' + $Result)
+
 }
 
 function Ping-Host {

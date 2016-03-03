@@ -36,7 +36,10 @@ Function Log
     if ((Test-Path $File) -eq $false) {
         New-Item -Path $File -ItemType File
         }
-    $line = & "`n" + $BuildNo + ": " $Message | timestamp
+    $line = "`n" + $BuildNo + ": " + $Message | timestamp
     Write-Host($line)
     $line | Add-Content $File
+
+    #Return line - we're going to save it to our log buffer and then at the end of it all push it up to e
+    $line
 }

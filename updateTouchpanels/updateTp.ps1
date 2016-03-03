@@ -1,14 +1,16 @@
 Param (
         [Parameter(ValueFromPipeline=$true)]
         [string]$Csv = ".\tp.csv",
-        [string]$output = ".\touchpanelUpdate_log",
-        [string]$BuildNumber = "BUILDNUMBERGOESHERE"
+        [string]$output = "C:\Windows\Temp\touchpanelUpdate_log",
+        [string]$BuildNumber = "2",
+        [string]$ElkServer
     )
 
 Import-Module PSFTP
 
 . .\Get-Telnet.ps1
 . .\Log.ps1
+. .\LogToELK.ps1
 
 #CONSTANTS
 $Port = "41795"
@@ -24,6 +26,9 @@ $hdPath = "$($pwd)\vtz\$($hd_img)"
 
 $username = "anonymous"
 $password = $username | ConvertTo-SecureString -AsPlainText -Force
+
+#logBuffer - we empty this on success, or on failure write it up to ELK. 
+$logBuffer = @()
 
 #-----
 #Is this necessary?
@@ -43,23 +48,26 @@ Import-Csv $Csv -Delimiter "," | `
 
 $Now = Get-Date -Format "yyyy-MM-ddTHH:mm:ss"
 
-$output = "$($output)_$($Now).txt"
+$output = "$($output)_1.txt"#"$($Now).txt"
 
 #We don't need this - we take care of this in the Log function
 #New-Item $output -ItemType file -force
 
 $Ip | Foreach {
+try{
+    
     $cmds = @()
     $InnerIP = $_
-
-    Log -BuildNo $BuildNumber -File $output -Message "Updating $($InnerIP)"
+    $logBuffer.Clear()
+    
+    $logBuffer += Log -BuildNo $BuildNumber -File $output -Message "Updating $($InnerIP)"
     
     #get The hostname associated with this IP - create an array of objects with two properties and run a
     #function of that.
     $Where = [array]::IndexOf($Ip, $InnerIP )
     $H = $Hnames[$Where]
 
-    Log -BuildNo $BuildNumber -File $output -Message "$($H)"
+    $logBuffer += Log -BuildNo $BuildNumber -File $output -Message "$($H)"
 
     #This is the IP table denoting what? Where the touchpanel is? 
     $IPTablePath_preEdit = "c:\repos\av-systems-automation\updateTouchpanels\" + $H + "_IPTable.csv"
@@ -67,14 +75,18 @@ $Ip | Foreach {
     
     $firmwareUpdatePath = "c:\repos\av-systems-automation\updateTouchpanels\" + $H + "_FW.csv"
     New-Item $IPTablePath -ItemType file -force
-    
+
     #Get IPTable
     $IPTableEntry_Type = @();
     $IPTableEntry_Address = @();
     $IPTableEntry_IPID = @();
+    #remoe all of the exess.puf files from the box, otherwise he firmware update won'tw ork. 
+    Get-Telnet -RemoteHost "$InnerIP" -Commands "cd \ROMDISK\user\system","REMOVE *.puf " -OutputPath $out
+    
     Get-Telnet -RemoteHost "$InnerIP" -Commands "iptable" -OutputPath $IPTablePath_preEdit
-
-    Log -BuildNo $BuildNumber -File $output -Message "Obtained IPTable for $($InnerIP)"
+    
+    
+    $logBuffer += Log -BuildNo $BuildNumber -File $output -Message "Obtained IPTable for $($InnerIP)"
 
     ##Determine firmware by output of iptable
     
@@ -106,7 +118,7 @@ $Ip | Foreach {
     else {
         exit
     }
-    Log -BuildNo $BuildNumber -File $output -Message "Device Type: $($deviceType)"
+    $logBuffer += Log -BuildNo $BuildNumber -File $output -Message "Device Type: $($deviceType)"
 
     New-Item $IPTablePath -ItemType file -force
     
@@ -124,16 +136,16 @@ $Ip | Foreach {
     #Why is this output not set to the log file? 
     Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "puf"
     
-    Log -BuildNo $BuildNumber -File $output -Message "Updated firmware"
+    $logBuffer += Log -BuildNo $BuildNumber -File $output -Message "Updated firmware"
     #Initialize
     do {
         Write-Host "waiting..."
         sleep 3      
     } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
 
-    Log -BuildNo $BuildNumber -File $output -Message "Initializing $($InnerIP)"
+    $logBuffer += Log -BuildNo $BuildNumber -File $output -Message "Initializing $($InnerIP)"
     Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "initialize","y"
-    Log -BuildNo $BuildNumber -File $output -Message "Initialized."
+    $logBuffer += Log -BuildNo $BuildNumber -File $output -Message "Initialized."
 
     #betacleanup
     do {
@@ -141,9 +153,9 @@ $Ip | Foreach {
         sleep 3      
     } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
 
-    Log -BuildNo $BuildNumber -File $output -Message "Running betacleanup..."
+    $logBuffer += Log -BuildNo $BuildNumber -File $output -Message "Running betacleanup..."
     Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "betacleanup","y"
-    Log -BuildNo $BuildNumber -File $output -Message "Betacleanup complete"
+    $logBuffer += Log -BuildNo $BuildNumber -File $output -Message "Betacleanup complete"
 
     ############
     #Load project
@@ -153,7 +165,7 @@ $Ip | Foreach {
     } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
 
     $projName = ""
-    Log -BuildNo $BuildNumber -File $output -Message "Uploading project..."
+    $logBuffer += Log -BuildNo $BuildNumber -File $output -Message "Uploading project..."
     switch ($tpType) {
         'FT'
         {
@@ -178,7 +190,7 @@ $Ip | Foreach {
         sleep 3      
     } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
     
-    Log -BuildNo $BuildNumber -File $output -Message "Loading project..."
+    $logBuffer += Log -BuildNo $BuildNumber -File $output -Message "Loading project..."
 
     if ($tpType -notmatch 'TS'){
         Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$firmwareUpdatePath" -Commands "cd \FTP","MOVEFILE $($projName) \ROMDISK\User\Display","reboot"
@@ -200,7 +212,7 @@ $Ip | Foreach {
         sleep 3      
     } until(Test-NetConnection $InnerIP -Port $Port | ? { $_.TcpTestSucceeded } )
     
-    Log -BuildNo $BuildNumber -File $output -Message "Reloading IPTable for $($InnerIP)"
+    $logBuffer += Log -BuildNo $BuildNumber -File $output -Message "Reloading IPTable for $($InnerIP)"
 
     #Parse IPTable
     Import-Csv $IPTablePath -Delimiter " " | `
@@ -223,5 +235,27 @@ $Ip | Foreach {
         {
             Get-Telnet -RemoteHost "$InnerIP" -Port "$Port" -OutputPath "$IPTableOutput" -Commands "ADDSlave $_ $A"            
         }
+    }
+
+    #We succeeded, log to elk
+    logToElk -Message "Successfully updated." -BuildNo $BuildNumber -ActiveHostName $H -ActiveHostIp $Ip -ServerAddress $ELKServer -Success $true
+
+    }
+    catch{
+        #We had some sort of an error - write the error along with the log cache up to the ELK Server. 
+        $ErrorMessage = $_.Exception.Message
+        $FailedItem = $_.Exception.ItemName
+
+        Write-Host($_)
+
+        $Message = "Error: " + $ErrorMessage + ", " + $FailedItem
+
+        $logBuffer | Foreach {
+            $Message += $_
+            Write-Host($_)
+        }
+
+     
+      logToElk -Message $Message -BuildNo $BuildNumber -ActiveHostName $H -ActiveHostIp [string]$Ip -ServerAddress $ELKServer -Success $true
     }
 }
