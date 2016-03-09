@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#updateHostnames.py
+#deleteEvents.py
 #2016 - Dan Clegg
 import sys
 from elasticsearch import Elasticsearch,RequestsHttpConnection,helpers
@@ -11,9 +11,9 @@ import time
 
 es = Elasticsearch(host='avreports.byu.edu',port='9200')
 
-res = es.search(index="events", doc_type='user',size=1)
+res = es.search(index="events_v7", doc_type='user',size=1)
 tot=res['hits']['total']
-res = es.search(index="events", doc_type='user',size=tot)
+res = es.search(index="events_v7", doc_type='user',size=tot)
 
 #get data from all results
 hits=res['hits']['hits']

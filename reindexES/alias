@@ -1,0 +1,6 @@
+{
+    "actions": [
+        { "remove": { "index": "events_v5", "alias": "events" }},
+        { "add":    { "index": "my_index_v2", "alias": "my_index" }}
+    ]
+}
