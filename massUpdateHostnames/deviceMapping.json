@@ -1,0 +1,62 @@
+{
+	"device": {
+		"properties": {
+			"ICN": {
+				"type": "string"
+			},
+			"description": {
+				"type": "string",
+				"index": "not_analyzed"
+			},
+			"deviceType": {
+				"type": "string"
+			},
+			"hostname": {
+				"type": "string"
+			},
+			"ipconfig": {
+				"type": "nested",
+				"properties": {
+					"dns": {
+						"type": "string"
+					},
+					"gateway": {
+						"type": "string"
+					},
+					"ip": {
+						"type": "string"
+					},
+					"macaddress": {
+						"type": "string"
+					},
+					"mask": {
+						"type": "string"
+					}
+				}
+			},
+			"notes": {
+				"type": "string"
+			},
+			"room": {
+				"properties": {
+					"building": {
+						"type": "string"
+					},
+					"coordinates": {
+						"dynamic": "true",
+						"type": "geo_point"
+					},
+					"floor": {
+						"type": "string"
+					},
+					"roomNumber": {
+						"type": "string"
+					}
+				}
+			},
+			"serial": {
+				"type": "string"
+			}
+		}
+	}
+}

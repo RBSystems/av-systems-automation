@@ -1,0 +1,39 @@
+{
+	"_default_": {
+		"properties": {
+			"description": {
+				"type": "string",
+				"index": "not_analyzed"
+			},
+			"deviceType": {
+				"type": "string"
+			},
+			"hostname": {
+				"type": "string"
+			},
+			"ipconfig": {
+				"type": "nested"
+			},
+			"notes": {
+				"type": "string"
+			},
+			"room": {
+				"properties": {
+					"building": {
+						"type": "string"
+					},
+					"coordinates": {
+						"dynamic": "true",
+						"type": "geo_point"
+					},
+					"floor": {
+						"type": "string"
+					},
+					"roomNumber": {
+						"type": "string"
+					}
+				}
+			}
+		}
+	}
+}
