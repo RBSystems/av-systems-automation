@@ -83,7 +83,7 @@ Function Get-Telnet
         [string]$RemoteHost = "",
         [string]$Port = "41795",
         [int]$WaitTime = 1000,
-        [string]$OutputPath = "\\server\share\switchbackup.txt"
+        [string]$OutputPath = "C:\Windows\Temp\Telnetlog.log"
     )
     #Attach to the remote device, setup streaming requirements
     $Socket = New-Object System.Net.Sockets.TcpClient($RemoteHost, $Port)
@@ -115,13 +115,17 @@ Function Get-Telnet
         Throw [string] $Result
     }
 
-
-    #Done, now save the results to a file
-    $Result | Out-File $OutputPath
-
+    if (test-path $OutputPath){
+        #Done, now save the results to a file.
+        $Result | Add-Content $OutputPath
+    }
     #This is where we would check for errors, and if we don't get a success from the client, we throw an error to be caught by updateTp.
 
-    Write-Host('TELNET:' + $Result)
+    Write-Host("-----------------TELNET----------------")
+    Write-Host($Result)
+    Write-Host("-----------------/TELNET----------------")
+
+    $Result
 
 }
 
