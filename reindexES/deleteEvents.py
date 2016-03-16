@@ -11,9 +11,9 @@ import time
 
 es = Elasticsearch(host='avreports.byu.edu',port='9200')
 
-res = es.search(index="events_v7", doc_type='user',size=1)
+res = es.search(index="events_v8", doc_type='user',size=1)
 tot=res['hits']['total']
-res = es.search(index="events_v7", doc_type='user',size=tot)
+res = es.search(index="events_v8", doc_type='user',size=tot)
 
 #get data from all results
 hits=res['hits']['hits']
@@ -21,5 +21,5 @@ hits=res['hits']['hits']
 for hit in hits:
 	#print(hit)
 	docId = hit['_id']
-	innerRes = es.delete(index="events",doc_type="user",id=docId)
+	innerRes = es.delete(index="events_v8",doc_type="user",id=docId)
 	print(innerRes)
