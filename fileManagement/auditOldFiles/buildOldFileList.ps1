@@ -1,29 +1,26 @@
+##############
+# Title: buildOldFileList.ps1
+# Author: DGC
+# Description: Build a list of files older than specified time period
+###############
+
 $fourMonths = (Get-Date).AddDays(-120)
-$eighteenMonths = (Get-Date).AddDays(-540)
 $tmpPaths = @("D:\trmp")
 $encodesPath = "D:\CR"
 $manifestPath = "D:\reaper"
 
+# Find all files older than (4 * 30) days
 $encodesArr = Get-ChildItem $encodesPath -Recurse | Where-Object {$_.LastWriteTime -lt $fourMonths}
 
+# Create list to use as path store
 $fourMonthEncodes = New-Object System.Collections.ArrayList($null)
 
-#TMPs
-$tmpPaths | ForEach-Object {
-    $obj = $_
-    $tempArr = Get-ChildItem $obj -Recurse | Where-Object {$_.LastWriteTime -lt $fourMonths}
-
-    $tempArr | ForEach-Object {
-        $fourMonthEncodes_tmp.Add($_.FullName)
-    }
-}
-
-#Four Month Profile
+# For each "permanent" artifact, get actual file path
 $fourMonthEncodesArr | ForEach-Object {
     $fourMonthEncodes.Add($_.FullName)
 }
 
 
+# Export output as csv
 $manifest = Join-Path -Path $manifestPath -ChildPath "fourMonth.csv"
-
 $fourMonthEncodes | export-csv $fourMonthManifest -NoTypeInformation
